@@ -1,0 +1,14 @@
+k_folds: 4  #Number of dataset subdivision when using K-fold validation. If 1 or less, no k-fold
+json_paths: [ "/home/dl.net/evezzali/Gitlab/Barcode-Localization-Benchmark/annotations/VIA/"
+]
+images_paths: [
+  "/home/dl.net/evezzali/Gitlab/Barcode-Localization-Benchmark/dataset/images"
+]
+
+output_path: "./TFDataset_real/"
+salt: "" #Files are split into train and test set depending on their name. Adding salt (must be a string) is equivalent to changing the seed of the random split
+
+normalized_padding: 40
+ppe_min: 3.0
+contrast_min: 30
+
