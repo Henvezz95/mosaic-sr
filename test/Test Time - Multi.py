@@ -94,8 +94,8 @@ for model in models:
                     output_data = interpreter.get_tensor(output_details[0]['index'])
                     current_times.append((perf_counter_ns()-start)/1e6)
             all_times.append(min(current_times))
-        output_dictionary[model] = np.mean(all_times)
+        output_dictionary[model] = np.mean(all_times).tolist()
 
 
-with open('./results/times.yaml', 'w') as outfile:
-    yaml.dump(output_dictionary, outfile, default_flow_style=False, sort_keys=False)
+    with open('./results/times.yaml', 'w') as outfile:
+        yaml.dump(output_dictionary, outfile, default_flow_style=False, sort_keys=False)
