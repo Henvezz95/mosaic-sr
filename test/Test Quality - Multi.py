@@ -30,7 +30,21 @@ border = 3
 decode_image = True
 
 folder = '../super-resolution-gan/PT_Models/'
-models = ['asconvsr', 'fmen','rfdn', 'imdn', 'rt4ksr_xxs','rt4ksr_s', 'rt4ksr_xl', 'fsrcnn', 'espcn', 'ecbsr_M4C8', 'imdn_rtc', 'eSR-MAX_s2_K5_C8', 'eSR-TM_s2_K7_C16', 'eSR-TR_s2_K7_C16']
+models = ['asconvsr', 
+          'fmen',
+          'rfdn', 
+          'imdn', 
+          'rt4ksr_xxs',
+          'rt4ksr_s', 
+          'rt4ksr_xl', 
+          'fsrcnn', 
+          'espcn', 
+          'ecbsr_M4C8', 
+          'imdn_rtc', 
+          'eSR-MAX_s2_K5_C8', 
+          'eSR-TM_s2_K7_C16', 
+          'eSR-TR_s2_K7_C16']
+
 footer = '_s0.0-r1.0'
 model_type = 'torch'
 device = torch.device("cuda:0")
@@ -134,5 +148,5 @@ for i in range(4):
             output_dictionary['ssim_all'][model][j][i] = np.mean(ssim_results_sr).tolist()
 
 
-    with open('results_asconvsr.yaml', 'w') as outfile:
+    with open('./results/results.yaml', 'w') as outfile:
         yaml.dump(output_dictionary, outfile, default_flow_style=False, sort_keys=False)
