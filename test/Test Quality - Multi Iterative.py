@@ -33,7 +33,6 @@ border = 3
 
 folder = '../super-resolution-gan/TF_Models/'
 model_name  = 'aggregate_model_s0.0-r1.0_2_3_3_ck_cl'
-model_type = 'iterative'
 th1 = [0.0, 0.05, 0.07, 0.09, 0.1, 0.11, 0.13, 0.15, 0.18, 1.0]
 th2 = [0.0, 0.05, 0.07, 0.09, 0.1, 0.11, 0.13, 0.15, 0.18, 1.0]
 thresholds_grid = np.meshgrid(th1, th2)
@@ -47,10 +46,10 @@ zbar_decoder = zbar_reader()
 decode_image = True
 
 for i in range(4):
-    #subprocess.run(["python3", 
-    #                "./buildTFDataset/create_dataset.py", 
-    #                "-c", "./configs/dataset_config.yaml", 
-    #                "-k", str(i)])
+    subprocess.run(["python3", 
+                    "./buildTFDataset/create_dataset.py", 
+                    "-c", "./configs/dataset_config.yaml", 
+                    "-k", str(i)])
     
     model_path = folder+model_name+'_'+str(i)
     g_model = tf.keras.models.load_model(model_path+'.h5')
