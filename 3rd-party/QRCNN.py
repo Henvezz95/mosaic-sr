@@ -13,7 +13,7 @@ class QRCNN(nn.Module):
         if sr == 4:
             G_layers.append(nn.Sequential(nn.Conv2d(128,256,3,1,1), nn.LeakyReLU(), nn.PixelShuffle(upscale_factor=2)))
         elif sr==2:
-            G_layers.append(nn.Sequential(nn.Conv2d(128,256,3,1,1), nn.LeakyReLU()))
+            G_layers.append(nn.Sequential(nn.Conv2d(128,64,3,1,1), nn.LeakyReLU()))
         else:
             print('Super resolution factor not supported')
         if final_activation == 'tanh':
