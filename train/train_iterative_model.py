@@ -69,8 +69,8 @@ alpha=0.1
 to_rep_ck = False
 to_rep_cl = False
 batch_norm = False
-epochs = 200
-epochs_tuning = 30
+epochs = 300
+
 ch = [[16,16], 
       [32,32,16], 
       [96,64,32]]
