@@ -28,7 +28,7 @@ mosaic-sr/
 ```
 
 # Build Repository
-Mosaic-SR upscales images patch by patch. An optimized [im2col](https://github.com/Henvezz95/im2col_2D) function is needed to convert the image to patches. The needed SIMD libraries must be built to make the repository work.  
+Mosaic-SR upscales images patch by patch. An optimized [im2col](https://github.com/Henvezz95/im2col_2D) function must be built to convert the image to patches. To do that you must call the CMakeLists file in the im2col folder.  
 
 ```bash
 cd im2col_2D
@@ -37,6 +37,10 @@ cmake -DCMAKE_BUILD_TYPE=Release ..
 cmake --build .
 ```
 CMake will detect your CPU architecture and automatically compile the corresponding SIMD implementation.
+Finally, install the required Python libraries.
+```bash
+pip install -r requirements.txt
+```
 
 # Prepare Dataset
 # Train Models
