@@ -21,11 +21,10 @@ H_real = 128
 W_real = 128
 NUM_REPEATS = 5
 selected_ppe = 1.3
+n_threads = 1
 
-folder = '../super-resolution-gan/PT_Models/'
-models = ['fmen',
-          'rfdn', 
-          'imdn', 
+folder = '../super-resolution-gan/TFLite_Models/'
+models = ['asconvsr',
           'rt4ksr_xxs',
           'rt4ksr_s', 
           'rt4ksr_xl', 
@@ -38,7 +37,7 @@ models = ['fmen',
           'eSR-TR_s2_K7_C16']
 
 footer = '_s0.0-r1.0'
-model_type = 'torch'
+model_type = 'tflite'
 
 output_dictionary = {}
     
@@ -47,7 +46,9 @@ for model in models:
     model_path = folder+model+footer+'_0'
     if model_type == 'tf':
         g_model = tf.keras.models.load_model(model_path+'.h5')
-        interpreter = keras2tflite(g_model, input_shape=(batch_size,H_real,W_real,1), num_threads=1)
+        interpreter = keras2tflite(g_model, 
+                                   input_shape=(batch_size,H_real,W_real,1), 
+                                   num_threads=n_threads)
     elif model_type == 'torch':
         if model == 'asconvsr':
             g_model = AsConvSR(in_ch=1, out_ch=1, scale_factor=2, device=torch.device('cpu'))
@@ -59,42 +60,50 @@ for model in models:
         else:
             g_model = torch.load(model_path+'.pt', map_location=torch.device('cpu'))
         g_model.eval()
-        interpreter = pytorch2tflite(g_model, tmp_folder='./tmp/', input_shape=(batch_size,1,H_real,W_real), num_threads=1)
-        dataset_test = generic_sampler(test_path, n_parallel_reads=4, repeat=False)
-        dataset_test = processed_batch_generator_real(dataset_test, 
-                                                    H_real, W_real, 
-                                                    batch_size, 
-                                                    apply_contrast_stretch=True, 
-                                                    contrast_change=False,
-                                                    rotate=False, 
-                                                    apply_noise=False,
-                                                    ppe_min=selected_ppe, ppe_max=selected_ppe)
-        
-        iterator = dataset_test.as_numpy_iterator()
-        np.random.seed(0)
-        all_times = []
-        for it in tqdm(iterator):
-            img_LD, img_HD, img_mask, ppe = it
-            img_LD = np.float32(img_LD)
-            if model_type == 'torch':
-                img_LD = img_LD[:,np.newaxis,:,:,0]
-            current_times = []
-            for i in range(NUM_REPEATS):
-                with tf.device('/cpu:0'):
-                    # Allocate tensors
-                    interpreter.allocate_tensors()
-                    # Get input and output tensors
-                    input_details = interpreter.get_input_details()
-                    output_details = interpreter.get_output_details()
-                    start = perf_counter_ns()
-                    # Test the model on random input data
-                    input_shape = input_details[0]['shape']
-                    interpreter.set_tensor(input_details[0]['index'], img_LD)
-                    interpreter.invoke()
-                    output_data = interpreter.get_tensor(output_details[0]['index'])
-                    current_times.append((perf_counter_ns()-start)/1e6)
-            all_times.append(min(current_times))
-        output_dictionary[model] = np.mean(all_times).tolist()
+        interpreter = pytorch2tflite(g_model, 
+                                     tmp_folder='./tmp/', 
+                                     input_shape=(batch_size,1,H_real,W_real), 
+                                     num_threads=n_threads)
+    elif model_type == 'tflite':
+        interpreter = tf.lite.Interpreter(model_path=f"{model_path}.tflite", 
+                                          num_threads=n_threads)
+        interpreter.resize_tensor_input(0, (batch_size,1,H_real,W_real), strict=True)
+    
+    dataset_test = generic_sampler(test_path, n_parallel_reads=4, repeat=False)
+    dataset_test = processed_batch_generator_real(dataset_test, 
+                                                H_real, W_real, 
+                                                batch_size, 
+                                                apply_contrast_stretch=True, 
+                                                contrast_change=False,
+                                                rotate=False, 
+                                                apply_noise=False,
+                                                ppe_min=selected_ppe, ppe_max=selected_ppe)
+    
+    iterator = dataset_test.as_numpy_iterator()
+    np.random.seed(0)
+    all_times = []
+    for it in tqdm(iterator):
+        img_LD, img_HD, img_mask, ppe = it
+        img_LD = np.float32(img_LD)
+        if model_type in ['torch', 'tflite']:
+            img_LD = np.transpose(img_LD, (0,3,1,2)).astype('float32')
+        current_times = []
+        for i in range(NUM_REPEATS):
+            with tf.device('/cpu:0'):
+                # Allocate tensors
+                interpreter.allocate_tensors()
+                # Get input and output tensors
+                input_details = interpreter.get_input_details()
+                output_details = interpreter.get_output_details()
+                start = perf_counter_ns()
+                # Test the model on random input data
+                input_shape = input_details[0]['shape']
+                interpreter.set_tensor(input_details[0]['index'], img_LD)
+                interpreter.invoke()
+                output_data = interpreter.get_tensor(output_details[0]['index'])
+                current_times.append((perf_counter_ns()-start)/1e6)
+        all_times.append(min(current_times))
+    output_dictionary[model] = np.mean(all_times).tolist()
 
 
     with open('./results/times.yaml', 'w') as outfile:

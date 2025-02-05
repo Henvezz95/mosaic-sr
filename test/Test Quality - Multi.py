@@ -5,12 +5,13 @@ import yaml
 import torch
 
 import sys
+import cv2
 import subprocess
 from copy import deepcopy
 sys.path.insert(0,'./')
 sys.path.insert(0,'./3rd-party/')
 from AsConvSR.AsConvSR import AsConvSR
-from utils.utils import fast_clip
+from utils.utils import fast_clip, interpolations
 from utils.metrics import masked_psnr, scalar_ssim
 from utils.readers import zbar_reader
 from utils.data_samplers import generic_sampler, processed_batch_generator_real
@@ -21,7 +22,7 @@ session =tf.compat.v1.InteractiveSession(config=config)
 
 tf_records_path = '../TFDataset_real/'
 test_path = tf_records_path+'Validation/'
-batch_size=128
+batch_size = 32
 
 # Size of real crops. Synthetic Crops are always 96x96
 H_real = 128
@@ -45,14 +46,14 @@ models = ['asconvsr',
           'eSR-TM_s2_K7_C16', 
           'eSR-TR_s2_K7_C16']
 
+#models = ['cubic', 'lanczos', 'linear']
 footer = '_s0.0-r1.0'
 model_type = 'torch'
 device = torch.device("cuda:0")
 
 output_dictionary = {'psnr_all':{}, 'psnr_mask':{},'ssim_all':{}, 'ssim_mask':{}, 'zbar':{}}
-
-results_mask = [[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4]
-results = [[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4]
+zbar_decodings_ld = [[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4]
+ratio = []
 
 zbar_decoder = zbar_reader()
 
@@ -62,7 +63,7 @@ for i in range(4):
                     "-c", "./configs/dataset_config.yaml", 
                     "-k", str(i)])
     
-    for model in models:
+    for idx, model in enumerate(models):
         if model not in output_dictionary['psnr_all']:
             output_dictionary['psnr_all'][model] = [[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4]
             output_dictionary['psnr_mask'][model] = [[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4,[0]*4]
@@ -86,6 +87,7 @@ for i in range(4):
             g_model.eval()
 
         for j in tqdm(range(7)):
+            np.random.seed(0)
             dataset_test = generic_sampler(test_path, n_parallel_reads=4, repeat=False)
             dataset_test = processed_batch_generator_real(dataset_test, 
                                                         H_real+border*2, W_real+border*2, 
@@ -101,12 +103,7 @@ for i in range(4):
             psnr_results_sr = []
             ssim_mask_results_sr = []
             ssim_results_sr = []
-            zxing_tot = []
             zbar_tot = []
-            datalogic_tot = []
-
-            mean_ops_list = []
-            np.random.seed(0)
 
             for it in iterator:
                 img_LD, img_HD, img_mask, ppe = it
@@ -125,28 +122,46 @@ for i in range(4):
                         torch_input = torch.from_numpy(img_LD[:,np.newaxis,:,:,0]).to(device)
                         torch_output = g_model(torch_input).detach().cpu().numpy()
                     imgs_up = torch_output[:,0]
+                elif model in interpolations:
+                    imgs_up = np.empty((len(img_HD), (W_real+border*2)*2, (H_real+border*2)*2), 
+                                       dtype=np.float32)
+                    
+                    for idx in range(len(imgs_up)):
+                        imgs_up[idx] = cv2.resize(img_LD[idx], 
+                                                  ((W_real+border*2)*2, (H_real+border*2)*2),
+                                                  interpolation=interpolations[model])
 
                 if border > 0:
                     imgs_up = imgs_up[:,border*2:-border*2,border*2:-border*2]
                     img_HD = img_HD[:,border*2:-border*2,border*2:-border*2]
                     img_mask = img_mask[:,border*2:-border*2,border*2:-border*2]
                 for k in range(len(img_LD)):
+                    ratio.append(np.mean(img_mask[k,:,:,0]))
                     psnr_mask_results_sr.append(masked_psnr(imgs_up[k], img_HD[k,:,:,0], np.round(img_mask[k,:,:,0]), R=1))
                     psnr_results_sr.append(masked_psnr(imgs_up[k], img_HD[k,:,:,0], R=1))
                     ssim_mask_results_sr.append(scalar_ssim(imgs_up[k], img_HD[k,:,:,0], np.round(img_mask[k,:,:,0])))
                     ssim_results_sr.append(scalar_ssim(imgs_up[k], img_HD[k,:,:,0]))
-                    img2decode = deepcopy(imgs_up[k])
-                    img2decode = np.round(fast_clip(img2decode*255,0,255)).astype('uint8')
                     if decode_image:
+                        img2decode = deepcopy(imgs_up[k])
+                        img2decode = np.round(fast_clip(img2decode*255,0,255)).astype('uint8')
                         zbar_decoder.work(img2decode)
                         if(len(zbar_decoder.get_decoded_results())==1):
                             output_dictionary['zbar'][model][j][i]+=1
+                        if idx == 0:
+                            img2decode = deepcopy(img_LD[k,:,:,0])
+                            img2decode = np.round(fast_clip(img2decode*255,0,255)).astype('uint8')
+                            zbar_decoder.work(img2decode)
+                            if(len(zbar_decoder.get_decoded_results())==1):
+                                zbar_decodings_ld[j][i]+=1
+
                     
             output_dictionary['psnr_mask'][model][j][i] = np.mean(psnr_mask_results_sr).tolist()
             output_dictionary['psnr_all'][model][j][i] = np.mean(psnr_results_sr).tolist()
             output_dictionary['ssim_mask'][model][j][i] = np.mean(ssim_mask_results_sr).tolist()
             output_dictionary['ssim_all'][model][j][i] = np.mean(ssim_results_sr).tolist()
+            output_dictionary['zbar_ld'] = zbar_decodings_ld
+            output_dictionary['mask_ratio'] = np.mean(ratio)
 
 
-    with open('./results/results.yaml', 'w') as outfile:
+    with open('./results/results_interpolations.yaml', 'w') as outfile:
         yaml.dump(output_dictionary, outfile, default_flow_style=False, sort_keys=False)
