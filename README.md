@@ -4,6 +4,7 @@ This repository contains the code and trained models for Mosaic-SR, a multi-step
 ![Github Logo](./qr_2462926b.webp)
 
 # Repository Structure
+```graphql
 mosaic-sr/
 ├── 3rd-party/  
 │   └──  ...                                # Contains reference models for comparison
@@ -24,6 +25,7 @@ mosaic-sr/
 │   └── Test Time - Multi Iterative.py      # Measures Processing time of Mosaic-SR models
 └── utils/
     └──  ...                                # Contains utility functions
+```
 
 # Build Repository
 # Prepare Dataset
