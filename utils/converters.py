@@ -12,6 +12,10 @@ import numpy as np
 
 def keras2tflite(model, input_shape=None, num_threads=1):
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    converter.target_spec.supported_ops = [
+        tf.lite.OpsSet.TFLITE_BUILTINS, # enable LiteRT ops.
+        tf.lite.OpsSet.SELECT_TF_OPS # enable TensorFlow ops.
+    ]
     tflite_model = converter.convert()
     interpreter = tf.lite.Interpreter(model_content=tflite_model, num_threads=num_threads)
     if input_shape is not None:

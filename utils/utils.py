@@ -10,6 +10,14 @@ import sys
 sys.path.insert(0, './im2col_2D/python/')
 from im2col import im2col_SIMD as im2col
 
+interpolations = {
+    'nearest': cv2.INTER_NEAREST,
+    'linear': cv2.INTER_LINEAR,
+    'cubic': cv2.INTER_CUBIC,
+    'lanczos': cv2.INTER_LANCZOS4,
+    'area': cv2.INTER_AREA
+}
+
 def fast_clip(mat, low, high):
     mat[np.greater(mat,high)] = high
     mat[np.less(mat,low)] = low
@@ -222,10 +230,11 @@ def interativeProcessing(H,W, inputVec, interpreters, th, nch=49):
     total_data_time+= (perf_counter_ns()-start)
     return result, total_NN_time/1e6, total_data_time/1e6
 
-def iterativeUpscale(img, interpreters, th):
+def iterativeUpscale(img, interpreters, th, ker=(7,7)):
     H,W = img.shape
+    nch = ker[0]*ker[1]
     start = perf_counter_ns()
-    reshaped_input = im2col_SIMD(img, 7, 7)
+    reshaped_input = im2col_SIMD(img, ker[0], ker[1])
     im2col_time = (perf_counter_ns()-start)/1e6
-    up_image, total_nn_time, total_data_time = interativeProcessing(H,W, reshaped_input, interpreters, th, nch=49)
+    up_image, total_nn_time, total_data_time = interativeProcessing(H,W, reshaped_input, interpreters, th, nch=nch)
     return up_image, total_nn_time, total_data_time+im2col_time
