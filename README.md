@@ -43,6 +43,11 @@ pip install -r requirements.txt
 ```
 
 # Prepare Dataset
+Download the BarBeR dataset from [here](https://ditto.ing.unimore.it/barber/) and select "Download Dataset". Extract the dataset from the zip, you will find two folders inside: "Annotations" and "dataset". 
+Now, we want to generate a TF Record for each dataset split (training, validation, and test sets). To do that run the script `create_dataset.py` inside buildTFDataset. The script takes input from a configuration file and an index. The configuration file must be in yaml format, and an example is `config/dataset_config.yaml`. The index is used for K-fold cross-validation. If the configuration file does not select k-fold cross-validation, you can use any index. To build the TFRecord run this command:
+```bash
+python ./buildTFDataset/create_dataset.py -c config/dataset_config.yaml -k 0
+```
 # Train Models
 # Test Models
 
