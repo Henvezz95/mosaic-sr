@@ -42,7 +42,7 @@ Finally, install the required Python libraries.
 pip install -r requirements.txt
 ```
 # Download Trained Models
-To reproduce the exact result showed in the paper, download the trained models from [here](https://unimore365-my.sharepoint.com/:f:/g/personal/319554_unimore_it/EvX00yibh_1FhSxN_m8cYHsBVYnna4--NamdGXx9eIysNg?e=kE5gnY).
+To reproduce the exact results shown in the paper, download the trained models from [here](https://unimore365-my.sharepoint.com/:f:/g/personal/319554_unimore_it/EvX00yibh_1FhSxN_m8cYHsBVYnna4--NamdGXx9eIysNg?e=kE5gnY).
 
 # Prepare Dataset
 Download the BarBeR dataset from [here](https://ditto.ing.unimore.it/barber/) and select "Download Dataset". Extract the dataset from the zip, you will find two folders inside: "Annotations" and "dataset". 
@@ -51,5 +51,7 @@ Now, we want to generate a TF Record for each dataset split (training, validatio
 python ./buildTFDataset/create_dataset.py -c config/dataset_config.yaml -k 0
 ```
 # Train Models
+To train the reference models use `train/train_pytorch_models.py`. To train our proposed pipeline use `train/train_iterative_models.py`. It will generate a single aggregate CNN model that will be reparameterized into fully-connected models M1, M2, and M3 during inference.
+
 # Test Models
 
