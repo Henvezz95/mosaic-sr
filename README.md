@@ -51,7 +51,7 @@ Now, we want to generate a TF Record for each dataset split (training, validatio
 python ./buildTFDataset/create_dataset.py -c config/dataset_config.yaml -k 0
 ```
 # Train Models
-To train the reference models use `train/train_pytorch_models.py`. To train our proposed pipeline use `train/train_iterative_models.py`. It will generate a single aggregate CNN model that will be reparameterized into fully-connected models M1, M2, and M3 during inference.
+To train the reference models use `train/train_pytorch_models.py`. To train our proposed pipeline use `train/train_iterative_models.py`. It will generate a single aggregate CNN model that will be reparameterized into fully connected models M1, M2, and M3 during inference.
 
 # Test Models
-
+The test scripts are inside the folder `/test`. `Test Quality - Multi.py`, is used to measure PSNR, SSIM, and Decoding Rate of reference models, while `Test Quality - Multi Iterative.py` does the same for our proposed pipeline. In the same way, `Test Time - Multi.py` and `Test Time - Multi Iterative.py` can be used to benchmark processing times for reference models and our proposed pipeline respectively.
