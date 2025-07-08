@@ -1,7 +1,28 @@
 # Mosaic-SR: Adaptive Super-Resolution for 2D Barcodes
+> **Official implementation of the ICIP 2025 paper "MOSAIC-SR: An Adaptive Multi-Step Super-Resolution Method for Low-Resolution 2D Barcodes"**
+
 This repository contains the code and trained models for Mosaic-SR, a multi-step, adaptive super-resolution (SR) method designed to enhance 2D barcode images (e.g., QR codes, Datamatrix). Mosaic-SR devotes more computational effort to regions with barcodes while minimizing effort on uniform backgrounds. The method predicts an uncertainty value for each patch to determine the number of refinement steps required for optimal quality.
 
-![Github Logo](./Mosaic-logo.png)
+![Mosaic-SR Logo](./Mosaic-logo.png)
+
+## 📝 Paper and Presentation
+
+* **Paper (Open Access):** [https://federicobolelli.it/pub_files/2025icip.pdf](https://federicobolelli.it/pub_files/2025icip.pdf)
+* **Presentation Slides (ERASMUS+ Summer School 2025):** [Download Here](https://site.unibo.it/mml-imaging/en/seminars/seminar_vezzali_04_june_2025.ppsx/@@download/file/Seminar_Vezzali_04_June_2025.ppsx)
+
+## 📜 Citing our Work
+
+If you find this work useful in your research, please consider citing our paper:
+
+### BibTeX
+```bibtex
+@inproceedings{vezzali2025mosaic,
+  title={Mosaic-SR: An Adaptive Multi-step Super-Resolution Method for Low-Resolution 2D Barcodes},
+  author={Vezzali, Enrico and Vorabbi, Lorenzo and Grana, Costantino and Bolelli, Federico and Datalogic, SpA},
+  booktitle={Proceedings of the 2025 IEEE International Conference on Image Processing},
+  year={2025}
+}
+```
 
 # Repository Structure
 ```graphql
