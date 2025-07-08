@@ -3,12 +3,12 @@
 
 This repository contains the code and trained models for Mosaic-SR, a multi-step, adaptive super-resolution (SR) method designed to enhance 2D barcode images (e.g., QR codes, Datamatrix). Mosaic-SR devotes more computational effort to regions with barcodes while minimizing effort on uniform backgrounds. The method predicts an uncertainty value for each patch to determine the number of refinement steps required for optimal quality.
 
-![Mosaic-SR Logo](./Mosaic-logo.png)
-
 ## 📝 Paper and Presentation
 
 * **Paper (Open Access):** [https://federicobolelli.it/pub_files/2025icip.pdf](https://federicobolelli.it/pub_files/2025icip.pdf)
 * **Presentation Slides (ERASMUS+ Summer School 2025):** [Download Here](https://site.unibo.it/mml-imaging/en/seminars/seminar_vezzali_04_june_2025.ppsx/@@download/file/Seminar_Vezzali_04_June_2025.ppsx)
+
+![Mosaic-SR Logo](./Mosaic-logo.png)
 
 ## 📜 Citing our Work
 
