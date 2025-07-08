@@ -23,8 +23,8 @@ If you find this work useful in your research, please consider citing our paper:
   year={2025}
 }
 ```
-
-# Repository Structure
+# 🚀 Getting Started
+### Repository Structure
 ```graphql
 mosaic-sr/
 ├── 3rd-party/  
@@ -48,7 +48,7 @@ mosaic-sr/
     └──  ...                                # Contains utility functions
 ```
 
-# Build Repository
+### Build Repository
 Mosaic-SR upscales images patch by patch. An optimized [im2col](https://github.com/Henvezz95/im2col_2D) function must be built to convert the image to patches. To do that you must call the CMakeLists file in the im2col folder.  
 
 ```bash
@@ -69,17 +69,19 @@ Finally, install the required Python libraries.
 pip install -r requirements.txt
 ```
 
-# Download Trained Models
+# 🛠️ Usage
+
+### 0. Download Trained Models
 To reproduce the exact results shown in the paper, download the trained models from [here](https://unimore365-my.sharepoint.com/:f:/g/personal/319554_unimore_it/EvX00yibh_1FhSxN_m8cYHsBVYnna4--NamdGXx9eIysNg?e=kE5gnY).
 
-# Prepare Dataset
+### 1. Prepare the Dataset
 Download the BarBeR dataset from [here](https://ditto.ing.unimore.it/barber/) and select "Download Dataset". Extract the dataset from the zip, you will find two folders inside: "Annotations" and "dataset". 
-Now, we want to generate a TF Record for each dataset split (training, validation, and test sets). To do that run the script `create_dataset.py` inside buildTFDataset. The script takes input from a configuration file and an index. The configuration file must be in yaml format, and an example is `config/dataset_config.yaml`. The index is used for K-fold cross-validation. If the configuration file does not select k-fold cross-validation, you can use any index. To build the TFRecord run this command:
+Now, we want to generate a TF Record for each dataset split (training, validation, and test sets). To do that, run the script `create_dataset.py` inside buildTFDataset. The script takes input from a configuration file and an index. The configuration file must be in YAML format, and an example is `config/dataset_config.yaml`. The index is used for K-fold cross-validation. If the configuration file does not select k-fold cross-validation, you can use any index. To build the TFRecord, run this command:
 ```bash
 python ./buildTFDataset/create_dataset.py -c config/dataset_config.yaml -k 0
 ```
-# Train Models
-To train the reference models use `train/train_pytorch_models.py`. To train our proposed pipeline use `train/train_iterative_models.py`. It will generate a single aggregate CNN model that will be reparameterized into fully connected models M1, M2, and M3 during inference.
+### 2. Train Models
+To train the reference models, use `train/train_pytorch_models.py`. To train our proposed pipeline, use `train/train_iterative_models.py`. It will generate a single aggregate CNN model that will be reparameterized into fully connected models M1, M2, and M3 during inference.
 
-# Test Models
-The test scripts are inside the folder `/test`. `Test Quality - Multi.py`, is used to measure PSNR, SSIM, and Decoding Rate of reference models, while `Test Quality - Multi Iterative.py` does the same for our proposed pipeline. In the same way, `Test Time - Multi.py` and `Test Time - Multi Iterative.py` can be used to benchmark processing times for reference models and our proposed pipeline respectively.
+### 3. Test Models
+The test scripts are inside the folder `/test`. `Test Quality - Multi.py`, is used to measure PSNR, SSIM, and Decoding Rate of reference models, while `Test Quality - Multi Iterative.py` does the same for our proposed pipeline. In the same way, `Test Time - Multi.py` and `Test Time - Multi Iterative.py` can be used to benchmark processing times for reference models and our proposed pipeline, respectively.
