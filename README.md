@@ -7,6 +7,7 @@ This repository contains the code and trained models for Mosaic-SR, a multi-step
 
 * **Paper (Open Access):** [https://federicobolelli.it/pub_files/2025icip.pdf](https://federicobolelli.it/pub_files/2025icip.pdf)
 * **Presentation Slides (ERASMUS+ Summer School 2025):** [Download Here](https://site.unibo.it/mml-imaging/en/seminars/seminar_vezzali_04_june_2025.ppsx/@@download/file/Seminar_Vezzali_04_June_2025.ppsx)
+* **Dataset:** [Download Here](https://ditto.ing.unimore.it/barber/)
 
 ![Mosaic-SR Logo](./Mosaic-logo.png)
 
